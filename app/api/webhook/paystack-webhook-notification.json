@@ -1,0 +1,71 @@
+{
+  "event": "charge.success",
+  "data": {
+    "id": 3268678648,
+    "domain": "test",
+    "status": "success",
+    "reference": "P-011715",
+    "amount": 40000000,
+    "message": null,
+    "gateway_response": "Successful",
+    "paid_at": "2023-11-08T21:31:43.000Z",
+    "created_at": "2023-11-08T21:31:35.000Z",
+    "channel": "card",
+    "currency": "NGN",
+    "ip_address": "",
+    "metadata": {
+      "custom_fields": [
+        {
+          "display_name": "Phone Number",
+          "variable_name": "phone",
+          "value": "9135525157"
+        }
+      ]
+    },
+    "fees_breakdown": null,
+    "log": null,
+    "fees": 200000,
+    "fees_split": null,
+    "authorization": {
+      "authorization_code": "",
+      "bin": "408408",
+      "last4": "4081",
+      "exp_month": "12",
+      "exp_year": "2030",
+      "channel": "card",
+      "card_type": "visa ",
+      "bank": "TEST BANK",
+      "country_code": "NG",
+      "brand": "visa",
+      "reusable": true,
+      "signature": "",
+      "account_name": null,
+      "receiver_bank_account_number": null,
+      "receiver_bank": null
+    },
+    "customer": {
+      "id": 147015347,
+      "first_name": null,
+      "last_name": null,
+      "email": "",
+      "customer_code": "",
+      "phone": null,
+      "metadata": null,
+      "risk_action": "default",
+      "international_format_phone": null
+    },
+    "plan": {},
+    "subaccount": {},
+    "split": {},
+    "order_id": null,
+    "paidAt": "2023-11-08T21:31:43.000Z",
+    "requested_amount": 40000000,
+    "pos_transaction_data": null,
+    "source": {
+      "type": "api",
+      "source": "merchant_api",
+      "entry_point": "transaction_initialize",
+      "identifier": null
+    }
+  }
+}
