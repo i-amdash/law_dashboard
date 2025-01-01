@@ -33,7 +33,7 @@ function isPublicRoute(request: NextRequest) {
 
 export default clerkMiddleware((auth, request: NextRequest) => {
   const origin = request.headers.get('origin') || ''
-  const allowedOrigins = ['http://localhost:3001']
+  const allowedOrigins = ['http://localhost:3001', 'https://onbapparel.vercel.app']
   const isAllowedOrigin = allowedOrigins.includes(origin)
   
   // Check if this is a products endpoint
