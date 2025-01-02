@@ -61,7 +61,7 @@ export default clerkMiddleware((auth, request: NextRequest) => {
   response.headers.set('Access-Control-Allow-Credentials', 'true')
   
   // Allow public access to GET requests on products or checkout endpoint
-  if (isProductsEndpoint || isCheckoutEndpoint && request.method === 'GET') {
+  if (isProductsEndpoint && isCheckoutEndpoint && request.method === 'GET') {
     return response
   }
   
