@@ -18,25 +18,42 @@ const axiosPaystack = axios.create({
 
 // Helper function to get CORS headers based on the request origin
 const getCorsHeaders = (origin: string | null) => {
-  // Allow requests from your frontend domains
+  // Log the incoming origin for debugging
+  console.log('Incoming origin:', origin);
+
+  // Allow requests from your frontend domains - include versions with and without trailing slash
   const allowedOrigins = [
     'https://onbapparel.vercel.app',
+    'https://onbapparel.vercel.app/',
     'https://onbdashboard.vercel.app',
+    'https://onbdashboard.vercel.app/',
     'http://localhost:3000',
     'http://localhost:3001'
   ];
 
-  return {
-    "Access-Control-Allow-Origin": allowedOrigins.includes(origin ?? '') 
-      ? origin ?? allowedOrigins[0]
-      : allowedOrigins[0],
+  // Log whether the origin is in our allowed list
+  console.log('Origin is allowed:', origin ? allowedOrigins.includes(origin) : false);
+
+  const corsHeaders = {
+    "Access-Control-Allow-Origin": origin && allowedOrigins.includes(origin) 
+      ? origin 
+      : 'https://onbapparel.vercel.app',
     "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    "Access-Control-Max-Age": "86400", // 24 hours cache
+    "Access-Control-Allow-Headers": "X-Requested-With, Content-Type, Authorization",
+    "Access-Control-Allow-Credentials": "true",
+    "Access-Control-Max-Age": "86400",
   };
+
+  // Log the headers we're sending back
+  console.log('CORS Headers being sent:', corsHeaders);
+
+  return corsHeaders;
 };
 
 export async function OPTIONS(req: Request) {
+  // Log that we're handling an OPTIONS request
+  console.log('Handling OPTIONS request');
+  
   const origin = req.headers.get("origin");
   return new NextResponse(null, { 
     headers: getCorsHeaders(origin)
@@ -47,7 +64,11 @@ export async function POST(
   req: Request,
   { params }: { params: { storeId: string } }
 ) {
+  // Log that we're handling a POST request
+  console.log('Handling POST request');
+  
   const origin = req.headers.get("origin");
+  console.log('Request headers:', Object.fromEntries(req.headers.entries()));
   
   try {
     const { productIds, phone, email } = await req.json();
@@ -143,7 +164,12 @@ export async function POST(
 
     return NextResponse.json(
       { url: paystackResponse.data.authorization_url },
-      { headers: getCorsHeaders(origin) }
+      { 
+        headers: {
+          ...getCorsHeaders(origin),
+          'Content-Type': 'application/json'
+        }
+      }
     );
 
   } catch (error) {
