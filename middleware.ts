@@ -38,7 +38,6 @@ export default clerkMiddleware((auth, request: NextRequest) => {
   
   // Check if this is a products endpoint
   const isProductsEndpoint = request.nextUrl.pathname.includes('/products')
-  const isCheckoutEndpoint = request.nextUrl.pathname.includes('/checkout')
   
   // Handle preflight requests
   if (request.method === 'OPTIONS') {
@@ -60,8 +59,8 @@ export default clerkMiddleware((auth, request: NextRequest) => {
   response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Clerk-Auth-Token')
   response.headers.set('Access-Control-Allow-Credentials', 'true')
   
-  // Allow public access to GET requests on products or checkout endpoint
-  if (isProductsEndpoint && isCheckoutEndpoint && request.method === 'GET') {
+  // Allow public access to GET requests on products endpoint
+  if (isProductsEndpoint && request.method === 'GET') {
     return response
   }
   
