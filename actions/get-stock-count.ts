@@ -18,8 +18,8 @@ export const getStockCount = async (storeId: string) => {
     }
 
     return count; // Return the stock count
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching stock count:", error);
-    throw new Error("Could not fetch stock count");
+    return 0; // Return 0 instead of throwing an error
   }
 };

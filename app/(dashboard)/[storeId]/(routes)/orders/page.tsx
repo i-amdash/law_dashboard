@@ -41,12 +41,15 @@ const OrdersPage = async ({
       name?: string;
       price?: number;
     };
+    quantity?: number;
+    gender?: string;
   }
 
   interface Order {
     id: string;
     phone: string;
     address: string;
+    email: string;
     order_items?: OrderItem[];
     is_paid: boolean;
     created_at: string;
@@ -56,6 +59,7 @@ const OrdersPage = async ({
     id: string;
     phone: string;
     address: string;
+    email: string;
     products: string;
     totalPrice: string;
     isPaid: boolean;
@@ -65,11 +69,18 @@ const OrdersPage = async ({
   const formattedOrders: OrderColumn[] = (orders as Order[] || []).map((item) => ({
     id: item.id,
     phone: item.phone,
-    address: item.address,
-    products: item.order_items?.map((orderItem) => orderItem.product?.name).join(', ') || '',
+    address: item.address || "No address provided",
+    email: item.email || item.address, // For backward compatibility
+    products: item.order_items?.map((orderItem) => {
+      const quantity = orderItem.quantity || 1;
+      const gender = orderItem.gender ? ` (${orderItem.gender})` : '';
+      return `${orderItem.product?.name}${gender} x${quantity}`;
+    }).join(', ') || '',
     totalPrice: formatter.format(
       item.order_items?.reduce((total, orderItem) => {
-        return total + Number(orderItem.product?.price || 0);
+        const price = Number(orderItem.product?.price || 0);
+        const quantity = orderItem.quantity || 1;
+        return total + (price * quantity);
       }, 0) || 0
     ),
     isPaid: item.is_paid,

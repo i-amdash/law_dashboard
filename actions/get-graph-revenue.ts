@@ -57,8 +57,8 @@ export const getGraphRevenue = async (storeId: string): Promise<GraphData[]> => 
     }
 
     return graphData;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching graph revenue:", error);
-    throw new Error("Could not fetch graph revenue");
+    return []; // Return empty array instead of throwing to prevent runtime errors
   }
 };
