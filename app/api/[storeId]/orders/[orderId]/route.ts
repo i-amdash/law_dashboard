@@ -168,7 +168,7 @@ export async function PATCH(
     }
 
     // Send email notification to customer if email is available
-    if (updatedOrder.users?.email) {
+    if (updatedOrder.users && updatedOrder.users[0]?.email) {
       try {
         const statusMessages = {
           'pending': 'Your order is being processed.',
@@ -179,12 +179,12 @@ export async function PATCH(
 
         await transporter.sendMail({
           from: process.env.EMAIL_USER,
-          to: updatedOrder.users.email,
+          to: updatedOrder.users[0].email,
           subject: `Order Status Update - ${updatedOrder.reference}`,
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <h2>Order Status Update</h2>
-              <p>Dear ${updatedOrder.users.full_name || 'Customer'},</p>
+              <p>Dear ${updatedOrder.users[0].full_name || 'Customer'},</p>
               <p>Your order with reference <strong>${updatedOrder.reference}</strong> has been updated.</p>
               <p><strong>New Status:</strong> ${status}</p>
               <p>${statusMessages[status as keyof typeof statusMessages]}</p>
