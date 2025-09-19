@@ -1,41 +1,10 @@
-// The cloudinary configuration is automatically handled by next-cloudinary
-// via environment variables in .env file
+// import { v2 as cloudinary } from 'next-cloudinary';
 
-/**
- * Uploads an image to Cloudinary
- * @param file Base64 encoded image string
- * @param options Upload options
- * @returns The upload result with secure URL and public ID
- */
-export async function uploadToCloudinary(
-  file: string,
-  options: {
-    folder?: string;
-    transformation?: Array<Record<string, any>>;
-  } = {}
-): Promise<{ url: string; publicId: string }> {
-  // Simulate direct upload since next-cloudinary doesn't expose direct upload API
-  const response = await fetch('/api/cloudinary/upload', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      file,
-      ...options,
-      folder: options.folder || 'o_n_b_apparels/profiles'
-    })
-  });
-  
-  if (!response.ok) {
-    throw new Error('Failed to upload image to Cloudinary');
-  }
-  
-  return await response.json();
-}
+// cloudinary.config({
+//   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+//   api_key: process.env.CLOUDINARY_API_KEY,
+//   api_secret: process.env.CLOUDINARY_API_SECRET,
+//   secure: true,  // Ensures HTTPS
+// });
 
-const cloudinaryUtils = {
-  upload: uploadToCloudinary
-};
-
-export default cloudinaryUtils;
+// export default cloudinary;

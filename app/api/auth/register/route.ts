@@ -49,7 +49,7 @@ export async function POST(req: Request) {
   const origin = req.headers.get("origin");
   
   try {
-    const { fullName, email, phone, password } = await req.json();
+    const { fullName, email, phone, password, height, cap_size, shirt_size, profile_image } = await req.json();
 
     // Validate inputs
     if (!email || !fullName || !phone) {
@@ -93,7 +93,11 @@ export async function POST(req: Request) {
         full_name: fullName,
         email: email,
         phone: phone,
-        password: userPassword // In production, this should be hashed
+        password: userPassword, // In production, this should be hashed
+        height: height,
+        cap_size: cap_size,
+        shirt_size: shirt_size,
+        profile_image: profile_image
       })
       .select()
       .single();

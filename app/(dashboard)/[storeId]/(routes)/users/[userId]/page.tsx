@@ -1,7 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 
 import { UserDetailsClient } from './components/client';
-import { User } from "@/types";
 
 const supabase = createClient(
   process.env.SUPABASE_URL!,
@@ -37,10 +36,10 @@ const UserPage = async ({
       address,
       created_at,
       updated_at,
-      order_items (
+      order_items:order_items (
         id,
         product_id,
-        products:product_id (
+        products:products!inner (
           id,
           name,
           price,
@@ -56,10 +55,20 @@ const UserPage = async ({
     // Continue without orders
   }
 
+  // Transform orders to match the expected Order type
+  const transformedOrders = (orders || []).map(order => ({
+    ...order,
+    order_items: order.order_items.map(item => ({
+      ...item,
+      // Convert products array to a single product object
+      products: item.products && item.products.length > 0 ? item.products[0] : { id: '', name: '', price: '', images: [] }
+    }))
+  }));
+
   return ( 
     <div className="flex-col">
       <div className="flex-1 space-y-4 p-8 pt-6">
-        <UserDetailsClient user={user} orders={orders || []} />
+        <UserDetailsClient user={user} orders={transformedOrders} />
       </div>
     </div>
   );

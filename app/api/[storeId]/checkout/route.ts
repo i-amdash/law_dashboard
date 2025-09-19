@@ -167,11 +167,11 @@ export async function POST(
             full_name: fullName || email.split('@')[0],
             email: email,
             phone: phone,
-            password: generatedPassword, // In production, this should be hashed
-            height: height || null,
-            cap_size: capSize || null,
-            shirt_size: shirtSize || null,
-            profile_image: profileImage || null
+            height: height,
+            cap_size: capSize,
+            shirt_size: shirtSize,
+            profile_image: profileImage,
+            password: generatedPassword // In production, this should be hashed
           })
           .select()
           .single();

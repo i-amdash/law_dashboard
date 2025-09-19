@@ -35,12 +35,22 @@ export async function OPTIONS(req: Request) {
   });
 }
 
-export async function GET(req: Request) {
+export async function PUT(req: Request) {
   const origin = req.headers.get("origin");
-  const url = new URL(req.url);
-  const userId = url.searchParams.get("userId");
   
   try {
+    const { 
+      userId, 
+      fullName,
+      email,
+      phone,
+      height,
+      cap_size,
+      shirt_size,
+      profile_image
+    } = await req.json();
+
+    // Validate inputs
     if (!userId) {
       return new NextResponse(JSON.stringify({ error: "User ID is required" }), { 
         status: 400,
@@ -51,16 +61,31 @@ export async function GET(req: Request) {
       });
     }
 
-    // Get user profile data
-    const { data: user, error: userError } = await supabase
+    // Prepare update object with only provided fields
+    const updateData: any = {};
+    if (fullName !== undefined) updateData.full_name = fullName;
+    if (email !== undefined) updateData.email = email;
+    if (phone !== undefined) updateData.phone = phone;
+    if (height !== undefined) updateData.height = height;
+    if (cap_size !== undefined) updateData.cap_size = cap_size;
+    if (shirt_size !== undefined) updateData.shirt_size = shirt_size;
+    if (profile_image !== undefined) updateData.profile_image = profile_image;
+    
+    // Add updated_at timestamp
+    updateData.updated_at = new Date().toISOString();
+
+    // Update user
+    const { data: updatedUser, error: updateError } = await supabase
       .from('users')
-      .select('id, full_name, email, phone, height, cap_size, shirt_size, profile_image, created_at, updated_at')
+      .update(updateData)
       .eq('id', userId)
+      .select('id, full_name, email, phone, height, cap_size, shirt_size, profile_image, created_at, updated_at')
       .single();
 
-    if (userError) {
-      return new NextResponse(JSON.stringify({ error: "User not found" }), { 
-        status: 404,
+    if (updateError) {
+      console.error("Error updating user:", updateError);
+      return new NextResponse(JSON.stringify({ error: "Failed to update profile" }), { 
+        status: 500,
         headers: {
           ...getCorsHeaders(origin),
           'Content-Type': 'application/json'
@@ -68,38 +93,8 @@ export async function GET(req: Request) {
       });
     }
 
-    // Get user's orders
-    const { data: orders, error: ordersError } = await supabase
-      .from('orders')
-      .select(`
-        id,
-        reference,
-        is_paid,
-        status,
-        created_at,
-        order_items (
-          id,
-          product_id,
-          products:product_id (
-            id,
-            name,
-            price,
-            images
-          )
-        )
-      `)
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
-
-    if (ordersError) {
-      console.error('Error fetching orders:', ordersError);
-    }
-
     return NextResponse.json(
-      { 
-        user, 
-        orders: orders || [] 
-      },
+      { user: updatedUser },
       { 
         headers: {
           ...getCorsHeaders(origin),
@@ -108,7 +103,7 @@ export async function GET(req: Request) {
       }
     );
   } catch (error) {
-    console.error('Profile fetch error:', error);
+    console.error("Server error:", error);
     return new NextResponse(JSON.stringify({ error: "Internal server error" }), { 
       status: 500,
       headers: {
