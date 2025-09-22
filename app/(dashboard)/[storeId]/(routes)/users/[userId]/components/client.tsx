@@ -16,13 +16,25 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { AlertModal } from "@/components/modals/alert-modal";
 
+// Nigerian Naira formatter
+const formatNaira = (amount: number) => {
+  return new Intl.NumberFormat('en-NG', {
+    style: 'currency',
+    currency: 'NGN',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount);
+};
+
 interface Order {
   id: string;
   reference: string;
   is_paid: boolean;
   status: string;
   phone: string;
-  address: string;
+  email: string;
+  shipping_address: string;
+  customer_name: string;
   created_at: string;
   updated_at: string;
   order_items: {
@@ -134,8 +146,8 @@ export const UserDetailsClient: React.FC<UserDetailsClientProps> = ({
                 <table className="w-full">
                   <thead className="text-xs text-gray-700 uppercase bg-gray-100">
                     <tr>
-                      <th scope="col" className="px-4 py-3 text-left">Order #</th>
-                      <th scope="col" className="px-4 py-3 text-left">Date</th>
+                      <th scope="col" className="px-4 py-3 text-left">Order Items</th>
+                      <th scope="col" className="px-4 py-3 text-left">Shipping Address</th>
                       <th scope="col" className="px-4 py-3 text-left">Status</th>
                       <th scope="col" className="px-4 py-3 text-left">Total</th>
                       <th scope="col" className="px-4 py-3 text-left">Action</th>
@@ -144,17 +156,39 @@ export const UserDetailsClient: React.FC<UserDetailsClientProps> = ({
                   <tbody>
                     {orders.map((order) => (
                       <tr key={order.id} className="bg-white border-b">
-                        <td className="px-4 py-3">{order.reference}</td>
-                        <td className="px-4 py-3">{formatDate(order.created_at)}</td>
+                        <td className="px-4 py-3">
+                          <div className="space-y-1">
+                            <div className="text-xs text-gray-500 font-medium">#{order.reference}</div>
+                            {order.order_items.map((item, index) => (
+                              <div key={index} className="text-sm">
+                                {item.products?.name || 'Unknown Product'} - {formatNaira(Number(item.products?.price || 0))}
+                              </div>
+                            ))}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="text-sm space-y-1">
+                            {order.shipping_address && (
+                              <div>{order.shipping_address}</div>
+                            )}
+                            {order.email && (
+                              <div className="text-xs text-gray-500">{order.email}</div>
+                            )}
+                            {!order.shipping_address && !order.email && (
+                              <div className="text-gray-400">No address provided</div>
+                            )}
+                          </div>
+                        </td>
                         <td className="px-4 py-3">
                           <Badge variant="outline" className={getStatusColor(order.status)}>
                             {order.status || 'Pending'}
                           </Badge>
                         </td>
                         <td className="px-4 py-3">
-                          ${order.order_items.reduce((total, item) => {
-                            return total + parseFloat(item.products.price);
-                          }, 0).toFixed(2)}
+                          {formatNaira(order.order_items.reduce((total, item) => {
+                            const price = Number(item.products?.price || 0);
+                            return total + (isNaN(price) ? 0 : price);
+                          }, 0))}
                         </td>
                         <td className="px-4 py-3">
                           <Select

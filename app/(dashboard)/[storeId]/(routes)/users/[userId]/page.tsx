@@ -24,7 +24,7 @@ const UserPage = async ({
     return <div>Error loading user details</div>;
   }
 
-  // Fetch user's orders
+  // Fetch user's orders using the same query structure as the API
   const { data: orders, error: ordersError } = await supabase
     .from('orders')
     .select(`
@@ -33,13 +33,16 @@ const UserPage = async ({
       is_paid,
       status,
       phone,
-      address,
+      email,
+      shipping_address,
+      customer_name,
+      user_id,
       created_at,
       updated_at,
-      order_items:order_items (
+      order_items (
         id,
         product_id,
-        products:products!inner (
+        products:product_id (
           id,
           name,
           price,
@@ -52,23 +55,12 @@ const UserPage = async ({
 
   if (ordersError) {
     console.error('Error fetching orders:', ordersError);
-    // Continue without orders
   }
-
-  // Transform orders to match the expected Order type
-  const transformedOrders = (orders || []).map(order => ({
-    ...order,
-    order_items: order.order_items.map(item => ({
-      ...item,
-      // Convert products array to a single product object
-      products: item.products && item.products.length > 0 ? item.products[0] : { id: '', name: '', price: '', images: [] }
-    }))
-  }));
 
   return ( 
     <div className="flex-col">
       <div className="flex-1 space-y-4 p-8 pt-6">
-        <UserDetailsClient user={user} orders={transformedOrders} />
+        <UserDetailsClient user={user} orders={orders as any || []} />
       </div>
     </div>
   );

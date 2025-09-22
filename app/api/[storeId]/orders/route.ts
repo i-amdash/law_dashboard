@@ -60,7 +60,9 @@ export async function GET(
         is_paid,
         status,
         phone,
-        address,
+        email,
+        shipping_address,
+        customer_name,
         user_id,
         created_at,
         users:user_id (

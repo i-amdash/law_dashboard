@@ -45,6 +45,11 @@ export async function OPTIONS(req: Request) {
   });
 }
 
+// Function to hash password
+function hashPassword(password: string): string {
+  return crypto.pbkdf2Sync(password, process.env.SALT!, 1000, 64, "sha512").toString("hex");
+}
+
 export async function POST(req: Request) {
   const origin = req.headers.get("origin");
   
@@ -62,12 +67,11 @@ export async function POST(req: Request) {
       });
     }
 
-    // Check if user exists
+    // Get user by email first
     const { data: user, error: userError } = await supabase
       .from('users')
       .select('*')
-      .eq('email', email)
-      .eq('password', password) // In production, use proper password hashing
+      .eq('email', email.toLowerCase())
       .single();
 
     if (userError || !user) {
@@ -80,11 +84,54 @@ export async function POST(req: Request) {
       });
     }
 
+    // Hash the provided password and compare
+    const hashedPassword = hashPassword(password);
+    
+    if (user.password !== hashedPassword) {
+      return new NextResponse(JSON.stringify({ error: "Invalid credentials" }), { 
+        status: 401,
+        headers: {
+          ...getCorsHeaders(origin),
+          'Content-Type': 'application/json'
+        }
+      });
+    }
+
+    // Check if user is using temporary password
+    const isTemporaryPassword = user.is_temp_password || false;
+    let tempPasswordExpired = false;
+
+    if (isTemporaryPassword && user.temp_password_created_at) {
+      const createdAt = new Date(user.temp_password_created_at);
+      const now = new Date();
+      const hoursDiff = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
+      
+      if (hoursDiff > 24) {
+        tempPasswordExpired = true;
+      }
+    }
+
+    if (tempPasswordExpired) {
+      return new NextResponse(JSON.stringify({ 
+        error: "Temporary password has expired. Please request a new one." 
+      }), { 
+        status: 401,
+        headers: {
+          ...getCorsHeaders(origin),
+          'Content-Type': 'application/json'
+        }
+      });
+    }
+
     // Return user data (excluding password)
     const { password: _, ...userData } = user;
 
     return NextResponse.json(
-      { user: userData, message: "Login successful" },
+      { 
+        user: userData, 
+        message: "Login successful",
+        requiresPasswordChange: isTemporaryPassword && !tempPasswordExpired
+      },
       { 
         headers: {
           ...getCorsHeaders(origin),

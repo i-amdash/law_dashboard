@@ -48,8 +48,9 @@ const OrdersPage = async ({
   interface Order {
     id: string;
     phone: string;
-    address: string;
     email: string;
+    shipping_address: string;
+    customer_name: string;
     order_items?: OrderItem[];
     is_paid: boolean;
     created_at: string;
@@ -69,8 +70,8 @@ const OrdersPage = async ({
   const formattedOrders: OrderColumn[] = (orders as Order[] || []).map((item) => ({
     id: item.id,
     phone: item.phone,
-    address: item.address || "No address provided",
-    email: item.email || item.address, // For backward compatibility
+    address: item.shipping_address || "No address provided",
+    email: item.email || "No email provided",
     products: item.order_items?.map((orderItem) => {
       const quantity = orderItem.quantity || 1;
       const gender = orderItem.gender ? ` (${orderItem.gender})` : '';

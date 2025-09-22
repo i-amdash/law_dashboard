@@ -113,7 +113,8 @@ export async function POST(
       height,
       capSize,
       shirtSize,
-      profileImage
+      profileImage,
+      userId: providedUserId // Add this to get the authenticated user ID
     } = await req.json();
     
     console.log('Received product IDs:', productIds);
@@ -145,9 +146,11 @@ export async function POST(
       }
     }
 
-    // Check if user wants to create an account and if user already exists
-    let userId = null;
-    if (createAccount) {
+    // Determine the user ID for this order
+    let userId = providedUserId; // Use provided userId if user is logged in
+    
+    if (createAccount && !userId) {
+      // Only create account if user is not already logged in
       const { data: existingUser } = await supabase
         .from('users')
         .select('id')
@@ -231,11 +234,12 @@ export async function POST(
       });
     }
     
-    // Then update with additional fields
+    // Then update with additional fields using new column structure
     const updateData: any = {};
     if (phone) updateData.phone = phone;
     if (email) updateData.email = email;
-    if (address) updateData.address = address;
+    if (address) updateData.shipping_address = address; // Use new shipping_address column
+    if (fullName) updateData.customer_name = fullName; // Add customer name
     if (userId) updateData.user_id = userId;
     
     console.log('Updating order with additional data:', updateData);

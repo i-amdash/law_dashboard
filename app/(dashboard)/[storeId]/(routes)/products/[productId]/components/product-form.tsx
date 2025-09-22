@@ -12,6 +12,7 @@ import { createClient } from "@supabase/supabase-js";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
   FormControl,
@@ -258,23 +259,6 @@ const defaultValues = initialData
             />
             <FormField
               control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={loading}
-                      placeholder="Product description"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
               name="is_featured"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
@@ -338,6 +322,27 @@ const defaultValues = initialData
             />
             {/* Continue with form fields for artist, medium, year, price, etc. */}
           </div>
+          
+          {/* Description field as full-width textarea at the end */}
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Description</FormLabel>
+                <FormControl>
+                  <Textarea
+                    disabled={loading}
+                    placeholder="Enter a detailed product description..."
+                    className="min-h-[120px]"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
           <Button disabled={loading} className="ml-auto" type="submit">
             {action}
           </Button>
